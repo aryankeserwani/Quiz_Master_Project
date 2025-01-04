@@ -92,7 +92,6 @@ class Leaderboard(db.Model):
     rank = db.Column(db.Integer, nullable=False)
     time_stamp = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
     
-    
 
 user_subject = db.Table('user_subject',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),

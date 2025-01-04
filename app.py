@@ -1,7 +1,7 @@
 from flask import Flask
 from Backend.config import LocalDevelopmentConfig
 from Backend.models import db, User, Role
-from flask_security import Security, SQLAlchemyUserDatastore
+from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 
 
 def createApp():

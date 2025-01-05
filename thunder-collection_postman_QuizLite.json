@@ -5,5 +5,105 @@
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "description": ""
     },
-    "item": []
+    "item": [
+        {
+            "name": "Get All Quizzes",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:3000/api/quizzes",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "quizzes"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Create Quiz",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"title\": \"Sample Quiz\",\n    \"description\": \"This is a sample quiz.\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:3000/api/quizzes",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "quizzes"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+,
+{
+    "name": "Get All Users",
+    "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+            "raw": "http://localhost:5000/api/users",
+            "protocol": "http",
+            "host": [
+                "localhost"
+            ],
+            "port": "5000",
+            "path": [
+                "api",
+                "users"
+            ]
+        }
+    },
+    "response": []
+},
+{
+    "name": "Create User",
+    "request": {
+        "method": "POST",
+        "header": [
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            }
+        ],
+        "body": {
+            "mode": "raw",
+            "raw": "{\n    \"username\": \"new_user\",\n    \"password\": \"password123\",\n    \"email\": \"new_user@gmail.com\",\n    \"full_name\": \"New User\",\n    \"qualification\": \"User\",\n    \"roles\": [\"User\"]\n}"
+        },
+        "url": {
+            "raw": "http://localhost:5000/api/users",
+            "protocol": "http",
+            "host": [
+                "localhost"
+            ],
+            "port": "5000",
+            "path": [
+                "api",
+                "users"
+            ]
+        }
+    },
+    "response": []
+}
 }

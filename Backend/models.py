@@ -31,7 +31,6 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-
     
 # Subject model
 class Subject(db.Model):
@@ -39,7 +38,8 @@ class Subject(db.Model):
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
     chapters = db.relationship('Chapter', backref='subject', lazy=True)
-    
+
+# Chapter model
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
@@ -48,6 +48,7 @@ class Chapter(db.Model):
     quizzes = db.relationship('Quiz', backref='chapter', lazy=True)
     questions = db.relationship('Question', backref='chapter', lazy=True)
     
+# Quiz model
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False)
@@ -58,7 +59,7 @@ class Quiz(db.Model):
     scores = db.relationship('Score', backref='quiz', lazy=True)
     leaderboard_entries = db.relationship('Leaderboard', backref='quiz', lazy=True)
     
-    
+# Question model    
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
@@ -70,7 +71,8 @@ class Question(db.Model):
     option4 = db.Column(db.String(150), nullable=True)
     correct_option = db.Column(db.String(150), nullable=False)
     marks = db.Column(db.Integer, nullable=False)
-    
+
+# Score model   
 class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
@@ -83,7 +85,8 @@ class Score(db.Model):
     questions_wrong = db.Column(db.Integer, nullable=False)
     percentage = db.Column(db.Float, nullable=False)
     remarks = db.Column(db.Text, nullable=True)
-    
+ 
+# Leaderboard model    
 class Leaderboard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
@@ -92,7 +95,7 @@ class Leaderboard(db.Model):
     rank = db.Column(db.Integer, nullable=False)
     time_stamp = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
     
-
+# user_roles model
 user_subject = db.Table('user_subject',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('subject_id', db.Integer, db.ForeignKey('subject.id'), primary_key=True)

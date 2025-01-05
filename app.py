@@ -3,7 +3,6 @@ from Backend.config import LocalDevelopmentConfig
 from Backend.models import db, User, Role
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 
-
 def createApp():
     app = Flask(__name__)
     app.config.from_object(LocalDevelopmentConfig)
@@ -13,7 +12,7 @@ def createApp():
     
     #flask-security init
     datastore = SQLAlchemyUserDatastore(db, User, Role)
-    app.security = Security(app, datastore=datastore)
+    app.security = Security(app, datastore=datastore, register_blueprint=False)
     app.app_context().push()
     
     return app

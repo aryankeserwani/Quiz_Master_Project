@@ -4,7 +4,7 @@ from Backend.models import db, User, Role
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 
 def createApp():
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='Frontend', static_folder='Frontend', static_url_path='/static')
     app.config.from_object(LocalDevelopmentConfig)
     
     # models init
@@ -18,11 +18,9 @@ def createApp():
     return app
 
 app=createApp()
-import Backend.create_initial_data
 
-@app.get("/")
-def hello():
-    return '<h1>Hello World</h1>'
+import Backend.create_initial_data
+import Backend.routes
 
 if __name__ == "__main__":
     app.run()

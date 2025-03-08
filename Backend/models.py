@@ -52,7 +52,7 @@ class Chapter(db.Model):
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False)
-    date_of_quiz = db.Column(db.DateTime, default=lambda: datetime.now())
+    date_of_quiz = db.Column(db.DateTime, default=datetime.utcnow)
     time_duration = db.Column(db.String(10), nullable=False)
     remarks = db.Column(db.Text, nullable=True)
     questions = db.relationship('Question', backref='quiz', lazy=True)
@@ -77,7 +77,7 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    time_stamp_of_attempt = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
+    time_stamp_of_attempt = db.Column(db.DateTime, default=datetime.utcnow)
     total_scored = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)
     questions_attempted = db.Column(db.Integer, nullable=False)
@@ -93,7 +93,7 @@ class Leaderboard(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     rank = db.Column(db.Integer, nullable=False)
-    time_stamp = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
+    time_stamp = db.Column(db.DateTime, default=datetime.utcnow)
     
 # user_roles model
 user_subject = db.Table('user_subject',

@@ -1,5 +1,5 @@
 from flask import current_app as app, jsonify, render_template, request
-from flask_security import auth_required, verify_password, hash_password
+from flask_security import auth_required, roles_required, current_user, verify_password, hash_password
 from Backend.models import db
 datastore = app.security.datastore
 
@@ -60,6 +60,19 @@ def register():
         db.session.rollback()
         return jsonify({"message": "Error in registering"}), 400
     
+@app.route("/api/admin")
+@auth_required('token')
+@roles_required('Admin')
+def admin_home():
+    return jsonify({"message": "Welcome Admin"})   
 
-
-    
+@app.route("/api/user_dashboard")
+@auth_required('token')
+@roles_required('user')
+def user_home():
+    user = current_user
+    return jsonify({
+        "username": user.username,
+        "password": user.password,
+        "email": user.email
+    })

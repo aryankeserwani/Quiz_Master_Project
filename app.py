@@ -10,7 +10,7 @@ def createApp():
     # models init
     db.init_app(app)
     
-    #flask-security init
+    # flask-security init
     datastore = SQLAlchemyUserDatastore(db, User, Role)
     app.security = Security(app, datastore=datastore, register_blueprint=False)
     app.app_context().push()

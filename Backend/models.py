@@ -16,7 +16,7 @@ class User(db.Model, UserMixin):
     qualification = db.Column(db.String(150), nullable=True)
     dob = db.Column(db.Date, nullable=True)
     roles = db.relationship('Role', backref='bearers', secondary='user_roles')
-    subjects = db.relationship('Subject', secondary='user_subject', backref=db.backref('users', lazy='dynamic'))
+    quizzes = db.relationship('Quiz', secondary='user_quiz', backref=db.backref('users', lazy='dynamic'))
     scores = db.relationship('Score', backref='user', lazy=True)
     leaderboard_entries = db.relationship('Leaderboard', backref='user', lazy=True)
     
@@ -96,7 +96,7 @@ class Leaderboard(db.Model):
     time_stamp = db.Column(db.DateTime, default=datetime.utcnow)
     
 # user_roles model
-user_subject = db.Table('user_subject',
+user_quiz = db.Table('user_quiz',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('subject_id', db.Integer, db.ForeignKey('subject.id'), primary_key=True)
+    db.Column('quiz_id', db.Integer, db.ForeignKey('quiz.id'), primary_key=True)
 )

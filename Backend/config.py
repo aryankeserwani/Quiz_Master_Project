@@ -1,9 +1,9 @@
 class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS=False
-    DEBUG=False
+    DEBUG=True
 class LocalDevelopmentConfig(Config):
     # config for database
-    SQLALCHEMY_DATABASE_URI='sqlite:///quiz_master.db'
+    SQLALCHEMY_DATABASE_URI='sqlite:///quiz_master.sqlite3'
     DEBUG=True
     
     # config for security

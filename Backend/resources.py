@@ -7,4 +7,4 @@ api = Api()
 class QuizApi(Resource):
     def get(self):
         quizzes = Quiz.query.all()
-        return [quiz.serialize for quiz in quizzes]
+        return [quiz.serialize for quiz in quizzes]  # Return a list of serialized quizzes

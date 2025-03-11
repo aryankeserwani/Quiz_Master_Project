@@ -1,5 +1,6 @@
 from flask import Flask
 from Backend.config import LocalDevelopmentConfig
+from Backend.resources import api
 from Backend.models import db, User, Role
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required
 
@@ -9,6 +10,8 @@ def createApp():
     
     # models init
     db.init_app(app)
+    
+    api.init_app(app)
     
     # flask-security init
     datastore = SQLAlchemyUserDatastore(db, User, Role)

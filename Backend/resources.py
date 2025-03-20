@@ -4,6 +4,7 @@ from flask_security import auth_required, roles_required, current_user, verify_p
 
 api = Api()
 
+
 class QuizApi(Resource):
     def get(self):
         quizzes = Quiz.query.all()

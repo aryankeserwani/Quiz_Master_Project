@@ -88,8 +88,9 @@ def register():
     user_role = userdatastore.find_role("user")
     if not user_role:
         # Create the role if it doesn't exist
-        user_role = userdatastore.create_role(name="User", description="User")
-        
+        user_role = userdatastore.create_role(name="user", description="User")
+        db.session.commit()  # Commit the role creation to the database
+
     # Create a new user with the provided details
     userdatastore.create_user(
         username=username,

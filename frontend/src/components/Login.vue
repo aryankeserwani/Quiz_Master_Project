@@ -38,59 +38,59 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Login",
-  data() {
-    return {
-      username: "",
-      password: "",
-      error: "",
-      isLoading: false,
-    };
-  },
-  methods: {
-    async login() {
-      this.isLoading = true;
-      this.error = "";
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAxios } from '@/composables/useAxios';
 
-      try {
-        const response = await this.$http.post("/login", {
-          username: this.username,
-          password: this.password,
-        });
+const router = useRouter();
+const { post, loading: apiLoading, error: apiError } = useAxios();
 
-        // Save user data and token to localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: response.data.id,
-            username: response.data.username,
-            email: response.data.email,
-            role: response.data.role,
-          })
-        );
+const username = ref('');
+const password = ref('');
+const error = ref('');
+const isLoading = ref(false);
 
-        // Redirect based on role
-        if (response.data.role === "Admin") {
-          this.$router.push("/admin");
-        } else {
-          this.$router.push("/dashboard");
-        }
-      } catch (error) {
-        console.error("Login error:", error);
-        this.error =
-          error.response?.data?.message || "Failed to login. Please try again.";
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    goToRegister() {
-      this.$router.push("/register");
-    },
-  },
-};
+async function login() {
+  isLoading.value = true;
+  error.value = "";
+
+  try {
+    const data = await post("/login", {
+      username: username.value,
+      password: password.value,
+    });
+
+    // Save user data and token to localStorage
+    localStorage.setItem("token", data.token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        role: data.role,
+      })
+    );
+
+    // Redirect based on role
+    if (data.role === "Admin") {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    error.value =
+      err.response?.data?.message || "Failed to login. Please try again.";
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function goToRegister() {
+  router.push("/register");
+}
 </script>
 
 <style scoped>

@@ -77,63 +77,59 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Register",
-  data() {
-    return {
-      formData: {
-        username: "",
-        password: "",
-        email: "",
-        fullname: "",
-        qualification: "",
-        dob: ""
-      },
-      isLoading: false,
-      error: "",
-      success: "",
-    };
-  },
-  methods: {
-    async register() {
-      this.isLoading = true;
-      this.error = "";
-      this.success = "";
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAxios } from '@/composables/useAxios';
 
-      try {
-        const response = await this.$http.post("/register", this.formData);
+const router = useRouter();
+const { post, loading, error: apiError } = useAxios();
 
-        this.success = response.data.message || "Registration successful!";
+const formData = reactive({
+  username: "",
+  password: "",
+  email: "",
+  fullname: "",
+  qualification: "",
+  dob: ""
+});
 
-        // Clear form after successful registration
-        this.formData = {
-          username: "",
-          password: "",
-          email: "",
-          fullname: "",
-          qualification: "",
-          dob: ""
-        };
+const isLoading = ref(false);
+const error = ref("");
+const success = ref("");
 
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          this.$router.push("/login");
-        }, 2000);
-      } catch (error) {
-        console.error("Registration error:", error);
-        this.error =
-          error.response?.data?.message ||
-          "Registration failed. Please try again.";
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    goToLogin() {
-      this.$router.push("/login");
-    },
-  },
-};
+async function register() {
+  isLoading.value = true;
+  error.value = "";
+  success.value = "";
+
+  try {
+    const data = await post("/register", formData);
+
+    success.value = data.message || "Registration successful!";
+
+    // Clear form after successful registration
+    Object.keys(formData).forEach(key => {
+      formData[key] = "";
+    });
+
+    // Redirect to login after 2 seconds
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+  } catch (err) {
+    console.error("Registration error:", err);
+    error.value =
+      err.response?.data?.message ||
+      "Registration failed. Please try again.";
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function goToLogin() {
+  router.push("/login");
+}
 </script>
 
 <style scoped>

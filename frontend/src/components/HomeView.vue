@@ -153,205 +153,204 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "HomeView",
-  data() {
-    return {
-      isLoggedIn: false
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const isLoggedIn = ref(false);
+
+onMounted(() => {
+  // Load GSAP library for animations
+  loadGSAP().then(() => {
+    setupGSAPAnimations();
+  });
+  
+  setupCursor();
+  checkLoginStatus();
+  
+  // Add Remix icons for the arrow
+  const link = document.createElement('link');
+  link.href = "https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css";
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+});
+
+function loadGSAP() {
+  return new Promise((resolve) => {
+    // Load GSAP and ScrollTrigger from CDN
+    const gsapScript = document.createElement('script');
+    gsapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/gsap.min.js";
+    gsapScript.onload = () => {
+      const scrollTriggerScript = document.createElement('script');
+      scrollTriggerScript.src = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/ScrollTrigger.min.js";
+      scrollTriggerScript.onload = () => resolve();
+      document.head.appendChild(scrollTriggerScript);
     };
-  },
-  mounted() {
-    // Load GSAP library for animations
-    this.loadGSAP().then(() => {
-      this.setupGSAPAnimations();
+    document.head.appendChild(gsapScript);
+  });
+}
+
+function setupCursor() {
+  const crsr = document.querySelector("#cursor");
+  const blur = document.querySelector("#cursor-blur");
+  
+  if (crsr && blur) {
+    document.addEventListener("mousemove", function (dets) {
+      crsr.style.left = dets.x + "px";
+      crsr.style.top = dets.y + "px";
+      blur.style.left = dets.x - 250 + "px";
+      blur.style.top = dets.y - 250 + "px";
+    });
+
+    const h4all = document.querySelectorAll("#nav h4");
+    h4all.forEach(function (elem) {
+      elem.addEventListener("mouseenter", function () {
+        crsr.style.scale = 3;
+        crsr.style.border = "1px solid #fff";
+        crsr.style.backgroundColor = "transparent";
+      });
+      elem.addEventListener("mouseleave", function () {
+        crsr.style.scale = 1;
+        crsr.style.border = "0px solid #6a3de8";
+        crsr.style.backgroundColor = "#6a3de8";
+      });
+    });
+  }
+}
+
+function setupGSAPAnimations() {
+  if (window.gsap && window.gsap.ScrollTrigger) {
+    const gsap = window.gsap;
+    
+    // Nav background animation - make it solid black when scrolling
+    gsap.to("#nav", {
+      backgroundColor: "#000",
+      duration: 0.5,
+      height: "110px",
+      scrollTrigger: {
+        trigger: "#nav",
+        scroller: "body",
+        start: "top -10%",
+        end: "top -11%",
+        scrub: 1,
+      },
+    });
+
+    // Main background animation - make it fully opaque sooner
+    gsap.to("#main", {
+      backgroundColor: "rgba(0, 0, 0, 1)", // Fully opaque black
+      scrollTrigger: {
+        trigger: "#main",
+        scroller: "body",
+        start: "top -5%", // Start earlier
+        end: "top -20%", // End earlier
+        scrub: 1,
+      },
     });
     
-    this.setupCursor();
-    this.checkLoginStatus();
+    // Fade out video when scrolling
+    gsap.to("#background-video", {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: "#page1",
+        scroller: "body",
+        start: "bottom 90%",
+        end: "bottom 70%",
+        scrub: 1,
+      },
+    });
+
+    // About us section animations
+    gsap.from("#about-us img, #about-us-in", {
+      y: 90,
+      opacity: 0,
+      duration: 1,
+      scrollTrigger: {
+        trigger: "#about-us",
+        scroller: "body",
+        start: "top 70%",
+        end: "top 65%",
+        scrub: 1,
+      },
+    });
+
+    // Card animations
+    gsap.from(".card", {
+      scale: 0.8,
+      duration: 1,
+      stagger: 0.1,
+      scrollTrigger: {
+        trigger: ".card",
+        scroller: "body",
+        start: "top 70%",
+        end: "top 65%",
+        scrub: 1,
+      },
+    });
+
+    // Quote marks animations
+    gsap.from("#colon1", {
+      y: -70,
+      x: -70,
+      scrollTrigger: {
+        trigger: "#colon1",
+        scroller: "body",
+        start: "top 55%",
+        end: "top 45%",
+        scrub: 4,
+      },
+    });
     
-    // Add Remix icons for the arrow
-    const link = document.createElement('link');
-    link.href = "https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-  },
-  methods: {
-    loadGSAP() {
-      return new Promise((resolve) => {
-        // Load GSAP and ScrollTrigger from CDN
-        const gsapScript = document.createElement('script');
-        gsapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/gsap.min.js";
-        gsapScript.onload = () => {
-          const scrollTriggerScript = document.createElement('script');
-          scrollTriggerScript.src = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/ScrollTrigger.min.js";
-          scrollTriggerScript.onload = () => resolve();
-          document.head.appendChild(scrollTriggerScript);
-        };
-        document.head.appendChild(gsapScript);
-      });
-    },
-    setupCursor() {
-      const crsr = document.querySelector("#cursor");
-      const blur = document.querySelector("#cursor-blur");
-      
-      if (crsr && blur) {
-        document.addEventListener("mousemove", function (dets) {
-          crsr.style.left = dets.x + "px";
-          crsr.style.top = dets.y + "px";
-          blur.style.left = dets.x - 250 + "px";
-          blur.style.top = dets.y - 250 + "px";
-        });
+    gsap.from("#colon2", {
+      y: 70,
+      x: 70,
+      scrollTrigger: {
+        trigger: "#colon1",
+        scroller: "body",
+        start: "top 55%",
+        end: "top 45%",
+        scrub: 4,
+      },
+    });
 
-        const h4all = document.querySelectorAll("#nav h4");
-        h4all.forEach(function (elem) {
-          elem.addEventListener("mouseenter", function () {
-            crsr.style.scale = 3;
-            crsr.style.border = "1px solid #fff";
-            crsr.style.backgroundColor = "transparent";
-          });
-          elem.addEventListener("mouseleave", function () {
-            crsr.style.scale = 1;
-            crsr.style.border = "0px solid #6a3de8";
-            crsr.style.backgroundColor = "#6a3de8";
-          });
-        });
-      }
-    },
-    setupGSAPAnimations() {
-      if (window.gsap && window.gsap.ScrollTrigger) {
-        const gsap = window.gsap;
-        
-        // Nav background animation - make it solid on scroll
-        gsap.to("#nav", {
-          backgroundColor: "#000", // Solid black
-          boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)", // Add shadow for depth
-          duration: 0.5,
-          height: "110px",
-          scrollTrigger: {
-            trigger: "#nav",
-            scroller: "body",
-            start: "top -5%", // Start earlier
-            end: "top -10%", 
-            scrub: 1,
-          },
-        });
-
-        // Main background animation - make it fully opaque sooner
-        gsap.to("#main", {
-          backgroundColor: "rgba(0, 0, 0, 1)", // Fully opaque black
-          scrollTrigger: {
-            trigger: "#main",
-            scroller: "body",
-            start: "top -5%", // Start earlier
-            end: "top -20%", // End earlier
-            scrub: 1,
-          },
-        });
-        
-        // Fade out video when scrolling
-        gsap.to("#background-video", {
-          opacity: 0,
-          scrollTrigger: {
-            trigger: "#page1",
-            scroller: "body",
-            start: "bottom 90%",
-            end: "bottom 70%",
-            scrub: 1,
-          },
-        });
-
-        // About us section animations
-        gsap.from("#about-us img, #about-us-in", {
-          y: 90,
-          opacity: 0,
-          duration: 1,
-          scrollTrigger: {
-            trigger: "#about-us",
-            scroller: "body",
-            start: "top 70%",
-            end: "top 65%",
-            scrub: 1,
-          },
-        });
-
-        // Card animations
-        gsap.from(".card", {
-          scale: 0.8,
-          duration: 1,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: ".card",
-            scroller: "body",
-            start: "top 70%",
-            end: "top 65%",
-            scrub: 1,
-          },
-        });
-
-        // Quote marks animations
-        gsap.from("#colon1", {
-          y: -70,
-          x: -70,
-          scrollTrigger: {
-            trigger: "#colon1",
-            scroller: "body",
-            start: "top 55%",
-            end: "top 45%",
-            scrub: 4,
-          },
-        });
-        
-        gsap.from("#colon2", {
-          y: 70,
-          x: 70,
-          scrollTrigger: {
-            trigger: "#colon1",
-            scroller: "body",
-            start: "top 55%",
-            end: "top 45%",
-            scrub: 4,
-          },
-        });
-
-        // Page 4 heading animation
-        gsap.from("#page4 h1", {
-          y: 50,
-          scrollTrigger: {
-            trigger: "#page4 h1",
-            scroller: "body",
-            start: "top 75%",
-            end: "top 70%",
-            scrub: 3,
-          },
-        });
-        
-        // Page 4 cards animation
-        gsap.from(".elem", {
-          y: 100,
-          opacity: 0,
-          duration: 1,
-          stagger: 0.2,
-          scrollTrigger: {
-            trigger: ".elem",
-            scroller: "body",
-            start: "top 80%",
-            end: "top 70%",
-            scrub: 1,
-          },
-        });
-      }
-    },
-    checkLoginStatus() {
-      // Check if user is logged in
-      const token = localStorage.getItem('token');
-      this.isLoggedIn = !!token;
-    },
-    goToLogin() {
-      this.$router.push('/login');
-    }
+    // Page 4 heading animation
+    gsap.from("#page4 h1", {
+      y: 50,
+      scrollTrigger: {
+        trigger: "#page4 h1",
+        scroller: "body",
+        start: "top 75%",
+        end: "top 70%",
+        scrub: 3,
+      },
+    });
+    
+    // Page 4 cards animation
+    gsap.from(".elem", {
+      y: 100,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      scrollTrigger: {
+        trigger: ".elem",
+        scroller: "body",
+        start: "top 80%",
+        end: "top 70%",
+        scrub: 1,
+      },
+    });
   }
-};
+}
+
+function checkLoginStatus() {
+  const token = localStorage.getItem("token");
+  isLoggedIn.value = !!token;
+}
+
+function goToLogin() {
+  router.push("/login");
+}
 </script>
 
 <style scoped>
@@ -377,12 +376,23 @@ html, body {
 body::-webkit-scrollbar {
   display: block;
   width: 8px;
-  background: #6a3de8;
+  background: rgba(106, 61, 232, 0.1);
+  border-radius: 8px;
 }
 
 body::-webkit-scrollbar-thumb {
-  background-color: #fff;
-  border-radius: 50px;
+  background: linear-gradient(to bottom, #6a3de8, #8a6bff);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(106, 61, 232, 0.3);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #8a6bff, #6a3de8);
+}
+
+body {
+  overflow-x: hidden;
 }
 
 #cursor {
@@ -417,9 +427,9 @@ body::-webkit-scrollbar-thumb {
   gap: 50px;
   position: fixed;
   justify-content: flex-start;
-  z-index: 999;
+  z-index: 9999;
   transition: all ease 0.5s;
-  background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent initial state */
+  background-color: transparent;
 }
 
 #nav img {
@@ -446,6 +456,7 @@ body::-webkit-scrollbar-thumb {
   position: fixed;
   top: 0;
   left: 0;
+ 
 }
 
 #main {
@@ -541,7 +552,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 #scroller::-webkit-scrollbar {
-  display: none;
+  display:none;
 }
 
 #scroller-in {
@@ -862,6 +873,7 @@ body::-webkit-scrollbar-thumb {
     padding: 0 20px;
     gap: 10px;
     height: 80px;
+    background-color: #000; /* Always solid black on mobile */
   }
   
   #nav img {

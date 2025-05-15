@@ -6,10 +6,14 @@ module.exports = defineConfig({
   outputDir: "dist",
   // Configure dev server for local development
   devServer: {
+    port: 8080,
     proxy: {
       "/api": {
         target: "http://localhost:5000",
         changeOrigin: true,
+        pathRewrite: {
+          "^/api": ""
+        }
       },
     },
   },

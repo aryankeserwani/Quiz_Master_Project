@@ -22,35 +22,31 @@
   </nav>
 </template>
 
-<script>
-export default {
-  name: "NavBar",
-  data() {
-    return {
-      userRole: null,
-    };
-  },
-  computed: {
-    isLoggedIn() {
-      return !!localStorage.getItem("token");
-    },
-  },
-  created() {
-    // Get user role from localStorage if available
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const user = JSON.parse(userData);
-      this.userRole = user.role;
-    }
-  },
-  methods: {
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.$router.push("/login");
-    },
-  },
-};
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const userRole = ref(null);
+
+const isLoggedIn = computed(() => {
+  return !!localStorage.getItem("token");
+});
+
+onMounted(() => {
+  // Get user role from localStorage if available
+  const userData = localStorage.getItem("user");
+  if (userData) {
+    const user = JSON.parse(userData);
+    userRole.value = user.role;
+  }
+});
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push("/login");
+}
 </script>
 
 <style scoped>

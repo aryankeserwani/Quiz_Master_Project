@@ -1,12 +1,9 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import Login from "../components/Login.vue";
 import Register from "../components/Register.vue";
 import Dashboard from "../components/Dashboard.vue";
 import Admin from "../components/Admin.vue";
 import HomeView from "../components/HomeView.vue";
-
-Vue.use(VueRouter);
 
 const routes = [
   {
@@ -41,9 +38,8 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(),
   routes,
 });
 

@@ -13,56 +13,58 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Dashboard",
-  data() {
-    return {
-      user: {},
-      loading: true,
-    };
-  },
-  created() {
-    this.checkAuth();
-    this.loadUserData();
-  },
-  methods: {
-    checkAuth() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        this.$router.push("/login");
-      }
-    },
-    async loadUserData() {
-      try {
-        // First try to get user from localStorage
-        const userData = localStorage.getItem("user");
-        if (userData) {
-          this.user = JSON.parse(userData);
-          this.loading = false;
-        }
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAxios } from '@/composables/useAxios';
 
-        // Also fetch fresh data from the API
-        const response = await this.$http.get("/user_dashboard");
-        // Update user data with the latest from the server
-        this.user = response.data;
-        this.loading = false;
-      } catch (error) {
-        console.error("Error loading user data:", error);
-        if (error.response && error.response.status === 401) {
-          // Unauthorized, token might be expired
-          this.logout();
-        }
-        this.loading = false;
-      }
-    },
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.$router.push("/login");
-    },
-  },
-};
+const router = useRouter();
+const { get, loading: apiLoading, error: apiError } = useAxios();
+
+const user = ref({});
+const loading = ref(true);
+
+onMounted(() => {
+  checkAuth();
+  loadUserData();
+});
+
+function checkAuth() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    router.push("/login");
+  }
+}
+
+async function loadUserData() {
+  try {
+    // First try to get user from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      user.value = JSON.parse(userData);
+      loading.value = false;
+    }
+
+    // Also fetch fresh data from the API
+    const data = await get("/user_dashboard");
+    // Update user data with the latest from the server
+    user.value = data;
+    loading.value = false;
+  } catch (error) {
+    console.error("Error loading user data:", error);
+    if (error.response && error.response.status === 401) {
+      // Unauthorized, token might be expired
+      logout();
+    }
+    loading.value = false;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push("/login");
+}
 </script>
 
 <style scoped>

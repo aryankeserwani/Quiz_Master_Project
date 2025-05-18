@@ -40,15 +40,16 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAxios } from '@/composables/useAxios';
 
 const router = useRouter();
+const route = useRoute();
 const { post, loading: apiLoading, error: apiError } = useAxios();
 
 const username = ref('');
 const password = ref('');
-const error = ref('');
+const error = ref(route.query.message || '');
 const isLoading = ref(false);
 
 async function login() {

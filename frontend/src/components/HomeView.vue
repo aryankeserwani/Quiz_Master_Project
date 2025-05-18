@@ -5,10 +5,11 @@
         src="https://static.vecteezy.com/system/resources/previews/009/385/307/original/quiz-time-neon-signs-style-text-free-vector.png"
         alt="Quiz Master Logo" />
       <h4>HOME</h4>
-      <h4>QUIZZES</h4>
-      <h4>LEADERBOARD</h4>
-      <h4>ABOUT US</h4>
-      <h4 @click="goToLogin">LOGIN</h4>
+      <h4 @click="Loginfirst">QUIZZES</h4>
+      <h4 @click="Loginfirst">LEADERBOARD</h4>
+      <h4 @click="AboutUs">ABOUT US</h4>
+      <h4 @click="LoginPage">LOGIN</h4>
+      <h4 @click="RegisterPage">Register</h4>
     </div>
     <div id="cursor"></div>
     <div id="cursor-blur"></div>
@@ -348,8 +349,28 @@ function checkLoginStatus() {
   isLoggedIn.value = !!token;
 }
 
-function goToLogin() {
+function LoginPage() {
   router.push("/login");
+}
+
+function RegisterPage() {
+  router.push("/Register");
+}
+
+function AboutUs() {
+  const aboutSection = document.getElementById('about-us');
+  if (aboutSection) {
+    aboutSection.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function Loginfirst() {
+  if (!isLoggedIn.value) {
+    router.push({ path: '/login', query: { message: 'Please login first' } });
+  } else {
+    // If logged in, you can route to quizzes page if exists
+    // router.push('/quizzes');
+  }
 }
 </script>
 
@@ -430,6 +451,8 @@ body {
   z-index: 9999;
   transition: all ease 0.5s;
   background-color: transparent;
+  top: 0;
+  left: 0;
 }
 
 #nav img {

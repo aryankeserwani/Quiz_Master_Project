@@ -1,7 +1,9 @@
 from flask_restful import Api, Resource, fields, marshal_with, marshal, reqparse, inputs
 from flask import request, abort
 from .models import *
-from flask_security import auth_required, roles_required, current_user, verify_password, hash_password
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from functools import wraps
+
 
 api = Api()
 
@@ -106,7 +108,7 @@ question_parser.add_argument('option4', type=str)
 question_parser.add_argument('correct_option', type=str, required=True, help='Correct option is required')
 question_parser.add_argument('marks', type=int, required=True, help='Marks are required')
 
-# Parser for deletion of Users (admin-only)
+# Parser for deletion of Users (Admin-only)
 user_delete_parser = reqparse.RequestParser()
 user_delete_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
 
@@ -118,6 +120,24 @@ search_parser.add_argument('chapter_id', type=int, location='args')
 search_parser.add_argument('question_type', type=str, location='args')  # Customize as needed
 
 
+# Helper for role checking
+def roles_required(*roles):
+    def wrapper(fn):
+        @wraps(fn)
+        @jwt_required()
+        def decorator(*args, **kwargs):
+            user = User.query.filter_by(username=get_jwt_identity()).first()
+            if not user or user.role.lower() not in [r.lower() for r in roles]:
+                abort(403, description="You are not authorized")
+            return fn(*args, **kwargs)
+        return decorator
+    return wrapper
+
+# Helper for getting current user
+def current_user():
+    return User.query.filter_by(username=get_jwt_identity()).first()
+
+
 # Resources (Endpoints)
 
 
@@ -125,8 +145,8 @@ search_parser.add_argument('question_type', type=str, location='args')  # Custom
 
 
 class SubjectListResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(subject_fields)
     def get(self):
         """List all subjects with optional search query"""
@@ -138,28 +158,27 @@ class SubjectListResource(Resource):
         subjects = subjects_query.all()
         return subjects
 
-    @auth_required()
-    @roles_required('admin')
-    @marshal_with(subject_fields)
+    @jwt_required()
+    @roles_required('Admin')
     def post(self):
         """Create a new subject"""
         args = subject_parser.parse_args()
-        new_subject = Subject(name=args['name'], description=args.get('description'))
+        new_subject = Subject(name=args['name'], description=args['description'])
         db.session.add(new_subject)
         db.session.commit()
-        return new_subject, 201
+        return {'message': 'Success creating subject'}, 200
 
 class SubjectResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(subject_fields)
     def get(self, subject_id):
         """Get a single subject by ID"""
         subject = Subject.query.get_or_404(subject_id)
         return subject
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(subject_fields)
     def put(self, subject_id):
         """Update a subject"""
@@ -170,8 +189,8 @@ class SubjectResource(Resource):
         db.session.commit()
         return subject
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def delete(self, subject_id):
         """Delete a subject"""
         subject = Subject.query.get_or_404(subject_id)
@@ -184,16 +203,16 @@ class SubjectResource(Resource):
 
 
 class ChapterListResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(chapter_fields)
     def get(self, subject_id):
         """List chapters for a given subject"""
         chapters = Chapter.query.filter_by(subject_id=subject_id).all()
         return chapters
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(chapter_fields)
     def post(self, subject_id):
         """Create a new chapter within a subject"""
@@ -207,16 +226,16 @@ class ChapterListResource(Resource):
         return new_chapter, 201
 
 class ChapterResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(chapter_fields)
     def get(self, chapter_id):
         """Get details of a specific chapter"""
         chapter = Chapter.query.get_or_404(chapter_id)
         return chapter
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(chapter_fields)
     def put(self, chapter_id):
         """Update a chapter"""
@@ -228,8 +247,8 @@ class ChapterResource(Resource):
         db.session.commit()
         return chapter
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def delete(self, chapter_id):
         """Delete a chapter"""
         chapter = Chapter.query.get_or_404(chapter_id)
@@ -242,16 +261,16 @@ class ChapterResource(Resource):
 
 
 class QuizListResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(quiz_fields)
     def get(self, chapter_id):
         """List quizzes for a given chapter"""
         quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
         return quizzes
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(quiz_fields)
     def post(self, chapter_id):
         """Create a new quiz for a chapter"""
@@ -264,16 +283,16 @@ class QuizListResource(Resource):
         return new_quiz, 201
 
 class QuizResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(quiz_fields)
     def get(self, quiz_id):
         """Retrieve a quiz by ID"""
         quiz = Quiz.query.get_or_404(quiz_id)
         return quiz
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(quiz_fields)
     def put(self, quiz_id):
         """Update a quiz"""
@@ -285,8 +304,8 @@ class QuizResource(Resource):
         db.session.commit()
         return quiz
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def delete(self, quiz_id):
         """Delete a quiz"""
         quiz = Quiz.query.get_or_404(quiz_id)
@@ -299,16 +318,16 @@ class QuizResource(Resource):
 
 
 class QuestionListResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(question_fields)
     def get(self, quiz_id):
         """List questions for a given quiz"""
         questions = Question.query.filter_by(quiz_id=quiz_id).all()
         return questions
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(question_fields)
     def post(self, quiz_id):
         """Create a new question for a quiz"""
@@ -331,16 +350,16 @@ class QuestionListResource(Resource):
         return new_question, 201
 
 class QuestionResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(question_fields)
     def get(self, question_id):
         """Retrieve a specific question"""
         question = Question.query.get_or_404(question_id)
         return question
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     @marshal_with(question_fields)
     def put(self, question_id):
         """Update a question"""
@@ -358,8 +377,8 @@ class QuestionResource(Resource):
         db.session.commit()
         return question
 
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def delete(self, question_id):
         """Delete a question"""
         question = Question.query.get_or_404(question_id)
@@ -372,8 +391,8 @@ class QuestionResource(Resource):
 
 
 class UserDeleteResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def delete(self, user_id):
         """Delete a user"""
         user = User.query.get_or_404(user_id)
@@ -386,8 +405,8 @@ class UserDeleteResource(Resource):
 
 
 class AdminSearchResource(Resource):
-    @auth_required()
-    @roles_required('admin')
+    @jwt_required()
+    @roles_required('Admin')
     def get(self):
         """
         Search across various models:
@@ -427,11 +446,11 @@ class AdminSearchResource(Resource):
 
 
 class UserDashboardSearchResource(Resource):
-    @auth_required()
+    @jwt_required()
     def get(self):
         """
         For the user dashboard, allow search for:
-          - quizzes (admin created)
+          - quizzes (Admin created)
           - current user's scores
         """
         parser = reqparse.RequestParser()
@@ -454,7 +473,7 @@ class UserDashboardSearchResource(Resource):
 
 
 class QuizFilterResource(Resource):
-    @auth_required()
+    @jwt_required()
     def get(self):
         """
         Filter quizzes based on subject, chapter, or question type.
@@ -482,34 +501,33 @@ class QuizFilterResource(Resource):
 # Route Registration Function
 
 
-def initialize_routes(api):
-    # Subject endpoints
-    api.add_resource(SubjectListResource, '/subjects')
-    api.add_resource(SubjectResource, '/subjects/<int:subject_id>')
-    
-    # Chapter endpoints (nested under Subject)
-    api.add_resource(ChapterListResource, '/subjects/<int:subject_id>/chapters')
-    api.add_resource(ChapterResource, '/chapters/<int:chapter_id>')
-    
-    # Quiz endpoints (nested under Chapter)
-    api.add_resource(QuizListResource, '/chapters/<int:chapter_id>/quizzes')
-    api.add_resource(QuizResource, '/quizzes/<int:quiz_id>')
-    
-    # Question endpoints (nested under Quiz)
-    api.add_resource(QuestionListResource, '/quizzes/<int:quiz_id>/questions')
-    api.add_resource(QuestionResource, '/questions/<int:question_id>')
-    
-    # User deletion endpoint (admin only)
-    api.add_resource(UserDeleteResource, '/api/users/<int:user_id>')
-    
-    # Admin search endpoint
-    api.add_resource(AdminSearchResource, '/api/admin/search')
-    
-    # User dashboard search endpoint
-    api.add_resource(UserDashboardSearchResource, '/api/user/search')
-    
-    # Quiz filter endpoint
-    api.add_resource(QuizFilterResource, '/quizzes/filter')
+# Subject endpoints
+api.add_resource(SubjectListResource, '/subjects')
+api.add_resource(SubjectResource, '/subjects/<int:subject_id>')
+
+# Chapter endpoints (nested under Subject)
+api.add_resource(ChapterListResource, '/subjects/<int:subject_id>/chapters')
+api.add_resource(ChapterResource, '/chapters/<int:chapter_id>')
+
+# Quiz endpoints (nested under Chapter)
+api.add_resource(QuizListResource, '/chapters/<int:chapter_id>/quizzes')
+api.add_resource(QuizResource, '/quizzes/<int:quiz_id>')
+
+# Question endpoints (nested under Quiz)
+api.add_resource(QuestionListResource, '/quizzes/<int:quiz_id>/questions')
+api.add_resource(QuestionResource, '/questions/<int:question_id>')
+
+# User deletion endpoint (Admin only)
+api.add_resource(UserDeleteResource, '/api/users/<int:user_id>')
+
+# Admin search endpoint
+api.add_resource(AdminSearchResource, '/api/admin/search')
+
+# User dashboard search endpoint
+api.add_resource(UserDashboardSearchResource, '/api/user/search')
+
+# Quiz filter endpoint
+api.add_resource(QuizFilterResource, '/quizzes/filter')
 
 
 # End of resource.py

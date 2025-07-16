@@ -25,19 +25,12 @@
           Quiz Master is a comprehensive quiz platform designed to make learning fun and accessible to everyone.
           Challenge yourself, compete with friends, and expand your knowledge with our diverse range of quiz categories.
         </p>
-        <div id="arrow">
+        <div id="arrow" @click="scrollToPage4">
           <i class="ri-arrow-down-line"></i>
         </div>
       </div>
       <div id="page2">
         <div id="scroller">
-          <div id="scroller-in">
-            <h4>CHALLENGE YOURSELF</h4>
-            <h4>TEST YOUR KNOWLEDGE</h4>
-            <h4>COMPETE WITH FRIENDS</h4>
-            <h4>LEARN SOMETHING NEW</h4>
-            <h4>WIN BADGES</h4>
-          </div>
           <div id="scroller-in">
             <h4>CHALLENGE YOURSELF</h4>
             <h4>TEST YOUR KNOWLEDGE</h4>
@@ -362,6 +355,14 @@ function AboutUs() {
   if (aboutSection) {
     aboutSection.scrollIntoView({ behavior: 'smooth' });
   }
+}
+
+function scrollToPage4() {
+  const page4 = document.getElementById('page4');
+  if (page4) {
+    page4.scrollIntoView({ behavior: 'smooth' });
+  }
+
 }
 
 function Loginfirst() {

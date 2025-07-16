@@ -1,36 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_security import UserMixin, RoleMixin
 from datetime import datetime
 
 db = SQLAlchemy()
 # User model
-class User(db.Model, UserMixin):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    # flask-security specific
-    fs_uniquifier = db.Column(db.String(150), unique=True, nullable=False)
     active = db.Column(db.Boolean, default=True)
-    full_name = db.Column(db.String(150), nullable=False)
+    fullname = db.Column(db.String(150), nullable=False)
     qualification = db.Column(db.String(150), nullable=True)
     dob = db.Column(db.Date, nullable=True)
-    roles = db.relationship('Role', backref='bearers', secondary='user_roles')
+    role = db.Column(db.Text, nullable=False, default='User')
     quizzes = db.relationship('Quiz', secondary='user_quiz', backref=db.backref('users', lazy='dynamic'))
     scores = db.relationship('Score', backref='user', lazy=True)
     leaderboard_entries = db.relationship('Leaderboard', backref='user', lazy=True)
-    
-# Role model
-class Role(db.Model, RoleMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255), nullable=False)
-
-# User_Roles model
-class UserRoles(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     
 # Subject model
 class Subject(db.Model):
@@ -95,7 +80,6 @@ class Leaderboard(db.Model):
     rank = db.Column(db.Integer, nullable=False)
     time_stamp = db.Column(db.DateTime, default=datetime.utcnow)
     
-# user_roles model
 user_quiz = db.Table('user_quiz',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('quiz_id', db.Integer, db.ForeignKey('quiz.id'), primary_key=True)

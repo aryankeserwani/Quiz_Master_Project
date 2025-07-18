@@ -4,7 +4,7 @@
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else class="admin-panel">
       <div class="welcome-section">
-        <h2>Welcome, Administrator!</h2>
+        <h2>Welcome,  {{ user.username }}!</h2>
         <p>From here you can manage the Quiz Master application.</p>
         <button @click="logout" class="logout-btn">Logout</button>
       </div>
@@ -35,6 +35,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAxios } from '@/composables/useAxios';
 
+const user = ref({});
 const router = useRouter();
 const { get, loading: apiLoading } = useAxios();
 const loading = ref(true);
@@ -57,8 +58,9 @@ function checkAuth() {
 async function loadAdminData() {
   try {
     // Get admin dashboard data
-    const data = await get("/admin");
+    const data = await get("/api/admin");
     console.log("Admin data:", data);
+    user.value = data;
     loading.value = false;
   } catch (error) {
     console.error("Error loading admin data:", error);

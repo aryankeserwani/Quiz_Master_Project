@@ -3,17 +3,17 @@ import { ref } from 'vue';
 
 // Create a configured axios instance
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api',
+  baseURL: 'http://127.0.0.1:5000/',
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
-// Add interceptor to include auth token in requests
+// Add interceptor to include Bearer token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    config.headers["Authentication-Token"] = token;
+    config.headers["Authorization"] = `Bearer ${token}`;  
   }
   return config;
 });
@@ -22,11 +22,9 @@ export function useAxios() {
   const loading = ref(false);
   const error = ref(null);
 
-  // GET request with error handling
   const get = async (url, config = {}) => {
     loading.value = true;
     error.value = null;
-    
     try {
       const response = await api.get(url, config);
       return response.data;
@@ -38,11 +36,9 @@ export function useAxios() {
     }
   };
 
-  // POST request with error handling
   const post = async (url, data = {}, config = {}) => {
     loading.value = true;
     error.value = null;
-    
     try {
       const response = await api.post(url, data, config);
       return response.data;
@@ -54,11 +50,9 @@ export function useAxios() {
     }
   };
 
-  // PUT request with error handling
   const put = async (url, data = {}, config = {}) => {
     loading.value = true;
     error.value = null;
-    
     try {
       const response = await api.put(url, data, config);
       return response.data;
@@ -70,11 +64,9 @@ export function useAxios() {
     }
   };
 
-  // DELETE request with error handling
   const del = async (url, config = {}) => {
     loading.value = true;
     error.value = null;
-    
     try {
       const response = await api.delete(url, config);
       return response.data;
@@ -97,4 +89,4 @@ export function useAxios() {
   };
 }
 
-export default api; 
+export default api;

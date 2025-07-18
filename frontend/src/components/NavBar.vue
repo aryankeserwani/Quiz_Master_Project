@@ -6,7 +6,7 @@
 
     <div class="nav-menu">
       <template v-if="isLoggedIn">
-        <router-link to="/dashboard" v-if="userRole !== 'Admin'"
+        <router-link to="/user_dashboard" v-if="userRole !== 'Admin'"
           >Dashboard</router-link
         >
         <router-link to="/admin" v-if="userRole === 'Admin'"

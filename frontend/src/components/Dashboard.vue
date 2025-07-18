@@ -38,15 +38,9 @@ function checkAuth() {
 
 async function loadUserData() {
   try {
-    // First try to get user from localStorage
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      user.value = JSON.parse(userData);
-      loading.value = false;
-    }
-
     // Also fetch fresh data from the API
-    const data = await get("/user_dashboard");
+    const data = await get("/api/user_dashboard");
+    console.log("User data:", data);
     // Update user data with the latest from the server
     user.value = data;
     loading.value = false;

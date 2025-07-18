@@ -25,7 +25,7 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
-    path: "/dashboard",
+    path: "/user_dashboard",
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },
@@ -43,31 +43,5 @@ const router = createRouter({
   routes,
 });
 
-// Navigation guard to check authentication
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
-  const userData = localStorage.getItem("user");
-
-  // Check if route requires auth
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!token) {
-      // If no token, redirect to login
-      next({ name: "Login" });
-    } else if (to.matched.some((record) => record.meta.requiresAdmin)) {
-      // If route requires admin, check if user is admin
-      const user = userData ? JSON.parse(userData) : { role: null };
-      if (user.role !== "Admin") {
-        next({ name: "Dashboard" });
-      } else {
-        next();
-      }
-    } else {
-      next();
-    }
-  } else {
-    // Allow access to non-auth routes
-    next();
-  }
-});
 
 export default router;

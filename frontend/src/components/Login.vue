@@ -14,6 +14,7 @@
               required
               placeholder="Username"
               autocomplete="username"
+              autofocus
             />
           </div>
           <div class="input-group">
@@ -33,7 +34,7 @@
           </button>
           <div class="switch-link">
             Don't have an account?
-            <a href="#" @click.prevent="goToRegister">Create</a>
+            <a href="#" @click.prevent="goToRegister">Create your account</a>
           </div>
         </form>
       </div>
@@ -46,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from 'vue';
+import { ref, inject, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAxios } from '@/composables/useAxios';
 
@@ -60,47 +61,35 @@ const error = ref(route.query.message || '');
 const isLoading = ref(false);
 const theme = inject('theme', ref(localStorage.getItem('theme') || 'dark'));
 
-onMounted(() => {
-  document.body.setAttribute('data-theme', theme.value);
-  // Watch for theme changes from NavBar
-  watch(theme, (val) => {
-    document.body.setAttribute('data-theme', val);
-  });
-  // Add Remix Icon CDN for icons
-  if (!document.getElementById('remixicon-cdn')) {
-    const link = document.createElement('link');
-    link.id = 'remixicon-cdn';
-    link.href = 'https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-  }
-});
+// Watch theme changes immediately
+watch(theme, (val) => {
+  document.body.setAttribute('data-theme', val);
+}, { immediate: true });
 
 async function login() {
   isLoading.value = true;
   error.value = "";
   try {
-    const data = await post("/login", {
+    const data = await post("/api/login", {
       username: username.value,
       password: password.value,
     });
-    localStorage.setItem("token", data.token);
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        role: data.role,
-      })
-    );
-    if (data.role === "Admin") {
+    
+    const { access_token, user } = data;
+
+    localStorage.setItem("token", access_token);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // Redirect to correct route
+    if (user.role === "Admin") {
       router.push("/admin");
     } else {
-      router.push("/dashboard");
+      router.push("/user_dashboard");
     }
+
   } catch (err) {
-    error.value = err.response?.data?.message || "Failed to login. Please try again.";
+    console.error(err);
+    error.value = err?.response?.data?.msg || 'Login failed. Please try again.';
   } finally {
     isLoading.value = false;
   }

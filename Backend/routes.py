@@ -45,10 +45,14 @@ def login():
         return jsonify({"message": "Wrong username and password"}), 401
     
     access_token = create_access_token(identity=user)
-    return jsonify(
-        access_token=access_token,
-        message="Login successfull"
-    ), 200
+    return jsonify({
+        "access_token": access_token,
+        "user": {
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    }), 200
 
 
 # # API endpoint for user registration
@@ -93,11 +97,12 @@ def register():
 @app.route("/api/admin")
 @role_required("Admin")
 def admin_home():
-    return jsonify({"message": "Welcome Admin"})
+    user= current_user
+    return jsonify({"username": user.username,"email": user.email})
 
 # # User dashboard route, accessible by users with the "user" role
 @app.route("/api/user_dashboard")
-
+@role_required("User")
 def user_home():
     user = current_user  # Get the current authenticated user
     return jsonify(

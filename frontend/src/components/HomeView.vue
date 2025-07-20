@@ -2,7 +2,7 @@
   <div>
     <div id="nav">
       <img
-        src="https://static.vecteezy.com/system/resources/previews/009/385/307/original/quiz-time-neon-signs-style-text-free-vector.png"
+        src="https://static.vecteezy.com/system/resources/previews/003/206/208/non_2x/quiz-time-neon-signs-style-text-free-vector.jpg"
         alt="Quiz Master Logo" />
       <h4>HOME</h4>
       <h4 @click="Loginfirst">QUIZZES</h4>

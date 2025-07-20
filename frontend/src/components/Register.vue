@@ -1,5 +1,5 @@
 <template>
-  <div :class="['login-root', theme]">
+  <div :class="['login-root']">
     <div class="login-card">
       <div class="login-left">
         <h2>Hello, friend!</h2>
@@ -11,7 +11,7 @@
           </div>
           <div class="input-group">
             <span class="icon"><i class="ri-lock-2-line"></i></span>
-            <input type="password" v-model="formData.password" required placeholder="Password" />
+            <input type="password" v-model="formData.password" @input="validatePassword" required placeholder="Password" />
           </div>
           <div class="input-group">
             <span class="icon"><i class="ri-mail-line"></i></span>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, inject, watch } from 'vue';
+import { reactive, ref, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAxios } from '@/composables/useAxios';
 
@@ -67,14 +67,8 @@ const formData = reactive({
 const isLoading = ref(false);
 const error = ref('');
 const success = ref('');
-const theme = inject('theme', ref(localStorage.getItem('theme') || 'dark'));
 
 onMounted(() => {
-  document.body.setAttribute('data-theme', theme.value);
-  // Watch for theme changes from NavBar
-  watch(theme, (val) => {
-    document.body.setAttribute('data-theme', val);
-  });
   // Add Remix Icon CDN for icons
   if (!document.getElementById('remixicon-cdn')) {
     const link = document.createElement('link');
@@ -85,19 +79,28 @@ onMounted(() => {
   }
 });
 
+// Validate password strength
+const validatePassword = () => {
+  if (formData.password.length < 8) {
+    error.value = "Password must be at least 8 characters long.";
+  } else {
+    error.value = "";
+  }
+}
+
 async function register() {
   isLoading.value = true;
   error.value = '';
   success.value = '';
   try {
-    const data = await post('/register', formData);
-    success.value = data.message || 'Registration successful!';
+    const data = await post('/api/register', formData);
+    success.value = data.message;
     Object.keys(formData).forEach(key => {
       formData[key] = '';
     });
     setTimeout(() => {
       router.push('/login');
-    }, 2000);
+    }, 3000);
   } catch (err) {
     error.value = err.response?.data?.message || 'Registration failed. Please try again.';
   } finally {
@@ -116,30 +119,16 @@ function goToLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--login-bg);
-  transition: background 0.3s;
-}
-.login-root.dark {
-  --login-bg: #10101a;
-}
-.login-root.light {
-  --login-bg: #f7f7fa;
+  background: #000;
 }
 .login-card {
   display: flex;
   width: 820px;
   min-height: 520px;
-  background: var(--card-bg);
+  background: rgba(24, 24, 40, 0.98);
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(106, 61, 232, 0.25);
   overflow: hidden;
-  transition: background 0.3s;
-}
-.login-root.dark .login-card {
-  --card-bg: #181828;
-}
-.login-root.light .login-card {
-  --card-bg: #fff;
 }
 .login-left, .login-right {
   flex: 1;
@@ -147,8 +136,7 @@ function goToLogin() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 0;
-  min-height: 520px;
+  color: #fff;
 }
 .login-left {
   background: transparent;
@@ -173,33 +161,24 @@ function goToLogin() {
 .login-left h2 {
   font-size: 2rem;
   margin-bottom: 8px;
-  color: #6a3de8;
+  color: #8a6bff;
 }
 .login-left p {
-  color: #888;
+  color: #bbb;
   margin-bottom: 24px;
 }
 .input-group {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
+  background: #23233a;
   border-radius: 12px;
   margin-bottom: 18px;
-  box-shadow: 0 1px 4px rgba(106, 61, 232, 0.04);
-  border: 1px solid var(--input-border);
-  transition: background 0.3s, border 0.3s;
-}
-.login-root.dark .input-group {
-  --input-bg: #23233a;
-  --input-border: #33334d;
-}
-.login-root.light .input-group {
-  --input-bg: #f3f3ff;
-  --input-border: #e0e0f0;
+  box-shadow: 0 1px 4px rgba(106, 61, 232, 0.08);
+  border: 1px solid #6a3de8;
 }
 .input-group .icon {
   padding: 0 12px;
-  color: #6a3de8;
+  color: #8a6bff;
   font-size: 1.2rem;
   display: flex;
   align-items: center;
@@ -210,7 +189,7 @@ function goToLogin() {
   background: transparent;
   padding: 12px 10px;
   font-size: 1rem;
-  color: inherit;
+  color: #fff;
   outline: none;
 }
 button[type="submit"] {
@@ -224,14 +203,14 @@ button[type="submit"] {
   font-weight: 600;
   margin-top: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(106, 61, 232, 0.08);
+  box-shadow: 0 2px 8px rgba(106, 61, 232, 0.18);
   transition: background 0.2s;
 }
 button[type="submit"]:hover {
   background: linear-gradient(90deg, #8a6bff 0%, #6a3de8 100%);
 }
 button[type="submit"]:disabled {
-  background: #cccccc;
+  background: #33334d;
   color: #fff;
   cursor: not-allowed;
 }
@@ -247,20 +226,38 @@ button[type="submit"]:disabled {
   font-size: 0.95rem;
   text-align: left;
 }
+.info-message {
+  color: #2196f3;
+  margin: 10px 0 0 0;
+  font-size: 0.95rem;
+  text-align: left;
+}
 .switch-link {
   margin-top: 18px;
   text-align: left;
   font-size: 0.98rem;
-  color: #888;
+  color: #bbb;
 }
 .switch-link a {
-  color: #6a3de8;
+  color: #8a6bff;
   text-decoration: underline;
   margin-left: 4px;
   font-weight: 600;
 }
 .switch-link a:hover {
-  color: #8a6bff;
+  color: #6a3de8;
+}
+/* Custom scrollbar */
+.login-root::-webkit-scrollbar {
+  width: 8px;
+  background: rgba(106, 61, 232, 0.1);
+  border-radius: 8px;
+}
+.login-root::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a3de8, #8a6bff);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(106, 61, 232, 0.3);
 }
 @media (max-width: 900px) {
   .login-card {

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['login-root', theme]">
+  <div class="login-root">
     <div class="login-card">
       <div class="login-left">
         <h2>Hello!</h2>
@@ -13,7 +13,6 @@
               v-model="username"
               required
               placeholder="Username"
-              autocomplete="username"
               autofocus
             />
           </div>
@@ -23,9 +22,9 @@
               type="password"
               id="password"
               v-model="password"
+              @input="validatePassword"
               required
               placeholder="Password"
-              autocomplete="current-password"
             />
           </div>
           <div v-if="error" class="error-message">{{ error }}</div>
@@ -47,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue';
+import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAxios } from '@/composables/useAxios';
 
@@ -59,12 +58,15 @@ const username = ref('');
 const password = ref('');
 const error = ref(route.query.message || '');
 const isLoading = ref(false);
-const theme = inject('theme', ref(localStorage.getItem('theme') || 'dark'));
 
-// Watch theme changes immediately
-watch(theme, (val) => {
-  document.body.setAttribute('data-theme', val);
-}, { immediate: true });
+// Validate password strength
+const validatePassword = () => {
+  if (password.value.length < 8) {
+    error.value = "Password must be at least 8 characters long.";
+  } else {
+    error.value = "";
+  }
+}
 
 async function login() {
   isLoading.value = true;
@@ -74,22 +76,17 @@ async function login() {
       username: username.value,
       password: password.value,
     });
-    
     const { access_token, user } = data;
-
     localStorage.setItem("token", access_token);
     localStorage.setItem("user", JSON.stringify(user));
-
-    // Redirect to correct route
     if (user.role === "Admin") {
       router.push("/admin");
     } else {
       router.push("/user_dashboard");
     }
-
   } catch (err) {
     console.error(err);
-    error.value = err?.response?.data?.msg || 'Login failed. Please try again.';
+    error.value = err.response.data.message;
   } finally {
     isLoading.value = false;
   }
@@ -106,30 +103,16 @@ function goToRegister() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--login-bg);
-  transition: background 0.3s;
-}
-.login-root.dark {
-  --login-bg: #10101a;
-}
-.login-root.light {
-  --login-bg: #f7f7fa;
+  background: #000;
 }
 .login-card {
   display: flex;
   width: 700px;
   min-height: 400px;
-  background: var(--card-bg);
+  background: rgba(24, 24, 40, 0.98);
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(106, 61, 232, 0.25);
   overflow: hidden;
-  transition: background 0.3s;
-}
-.login-root.dark .login-card {
-  --card-bg: #181828;
-}
-.login-root.light .login-card {
-  --card-bg: #fff;
 }
 .login-left, .login-right {
   flex: 1;
@@ -137,6 +120,7 @@ function goToRegister() {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  color: #fff;
 }
 .login-left {
   background: transparent;
@@ -161,34 +145,27 @@ function goToRegister() {
 .login-left h2 {
   font-size: 2rem;
   margin-bottom: 8px;
-  color: #6a3de8;
+  color: #8a6bff;
 }
 .login-left p {
-  color: #888;
+  color: #bbb;
   margin-bottom: 24px;
 }
 .input-group {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
+  background: #23233a;
   border-radius: 12px;
   margin-bottom: 18px;
-  box-shadow: 0 1px 4px rgba(106, 61, 232, 0.04);
-  border: 1px solid var(--input-border);
-  transition: background 0.3s, border 0.3s;
-}
-.login-root.dark .input-group {
-  --input-bg: #23233a;
-  --input-border: #33334d;
-}
-.login-root.light .input-group {
-  --input-bg: #f3f3ff;
-  --input-border: #e0e0f0;
+  box-shadow: 0 1px 4px rgba(106, 61, 232, 0.08);
+  border: 1px solid #6a3de8;
 }
 .input-group .icon {
   padding: 0 12px;
-  color: #6a3de8;
+  color: #8a6bff;
   font-size: 1.2rem;
+  display: flex;
+  align-items: center;
 }
 .input-group input {
   flex: 1;
@@ -196,7 +173,7 @@ function goToRegister() {
   background: transparent;
   padding: 12px 10px;
   font-size: 1rem;
-  color: inherit;
+  color: #fff;
   outline: none;
 }
 button[type="submit"] {
@@ -210,14 +187,14 @@ button[type="submit"] {
   font-weight: 600;
   margin-top: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(106, 61, 232, 0.08);
+  box-shadow: 0 2px 8px rgba(106, 61, 232, 0.18);
   transition: background 0.2s;
 }
 button[type="submit"]:hover {
   background: linear-gradient(90deg, #8a6bff 0%, #6a3de8 100%);
 }
 button[type="submit"]:disabled {
-  background: #cccccc;
+  background: #33334d;
   color: #fff;
   cursor: not-allowed;
 }
@@ -231,16 +208,28 @@ button[type="submit"]:disabled {
   margin-top: 18px;
   text-align: left;
   font-size: 0.98rem;
-  color: #888;
+  color: #bbb;
 }
 .switch-link a {
-  color: #6a3de8;
+  color: #8a6bff;
   text-decoration: underline;
   margin-left: 4px;
   font-weight: 600;
 }
 .switch-link a:hover {
-  color: #8a6bff;
+  color: #6a3de8;
+}
+/* Custom scrollbar */
+.login-root::-webkit-scrollbar {
+  width: 8px;
+  background: rgba(106, 61, 232, 0.1);
+  border-radius: 8px;
+}
+.login-root::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a3de8, #8a6bff);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(106, 61, 232, 0.3);
 }
 @media (max-width: 800px) {
   .login-card {

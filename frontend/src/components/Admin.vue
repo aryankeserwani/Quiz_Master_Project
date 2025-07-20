@@ -3,29 +3,8 @@
     <h1>Admin Dashboard</h1>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else class="admin-panel">
-      <div class="welcome-section">
-        <h2>Welcome,  {{ user.username }}!</h2>
-        <p>From here you can manage the Quiz Master application.</p>
-        <button @click="logout" class="logout-btn">Logout</button>
-      </div>
-
-      <div class="admin-sections">
-        <div class="admin-card">
-          <h3>System Status</h3>
-          <p>All systems operational</p>
-        </div>
-
-        <!-- Placeholder for future admin functionality -->
-        <div class="admin-card">
-          <h3>User Management</h3>
-          <p>Feature coming soon...</p>
-        </div>
-
-        <div class="admin-card">
-          <h3>Quiz Management</h3>
-          <p>Feature coming soon...</p>
-        </div>
-      </div>
+      
+      
     </div>
   </div>
 </template>

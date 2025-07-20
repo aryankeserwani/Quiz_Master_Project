@@ -10,7 +10,7 @@ def createApp():
     app.config.from_object(LocalDevelopmentConfig)
     
     # Enable CORS
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app)
     
     # models init
     db.init_app(app)
@@ -47,4 +47,4 @@ if __name__ == "__main__":
     #         role="Admin"
     #     ))
     #     db.session.commit()
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5100)

@@ -1,20 +1,19 @@
 <template>
   <div id="app">
-    <NavBar />
-    <main class="main-content">
+    <NavBar v-if="!isHomePage" />
+    <main class="main-content" :class="{ 'home-page': isHomePage }">
       <router-view />
     </main>
   </div>
 </template>
 
-<script>
+<script setup>
 import NavBar from "@/components/NavBar.vue";
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-export default {
-  components: {
-    NavBar,
-  },
-};
+const route = useRoute();
+const isHomePage = computed(() => route.path === '/' || route.path === '/home');
 </script>
 
 <style>
@@ -30,6 +29,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   background-color: #f5f7fa;
+  overflow-x: hidden;
 }
 
 #app {
@@ -41,6 +41,13 @@ body {
 .main-content {
   flex-grow: 1;
   padding: 20px;
+}
+
+.home-page {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 a {

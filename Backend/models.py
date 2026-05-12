@@ -1,9 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
+<<<<<<< HEAD
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
+=======
+>>>>>>> 304d10c5f05240ed5b49b0750f632c4cd61c56c0
 from datetime import datetime
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
+<<<<<<< HEAD
 
 # Define models
 # Relationship table for User and Role (many-to-many)
@@ -36,6 +40,24 @@ class User(db.Model, UserMixin):
 # Create user datastore
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
+=======
+# User model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    fullname = db.Column(db.String(150), nullable=False)
+    qualification = db.Column(db.String(150), nullable=True)
+    dob = db.Column(db.Date, nullable=True)
+    role = db.Column(db.Text, nullable=False, default='User')
+    quizzes = db.relationship('Quiz', secondary='user_quiz', backref=db.backref('users', lazy='dynamic'))
+    scores = db.relationship('Score', backref='user', lazy=True)
+    leaderboard_entries = db.relationship('Leaderboard', backref='user', lazy=True)
+    
+# Subject model
+>>>>>>> 304d10c5f05240ed5b49b0750f632c4cd61c56c0
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -95,5 +117,12 @@ class Score(db.Model):
     total_questions = db.Column(db.Integer, nullable=False)
     date_taken = db.Column(db.DateTime, nullable=False, default=datetime.now)
     
+<<<<<<< HEAD
     # Unique constraint to prevent duplicate submissions
     __table_args__ = (db.UniqueConstraint('quiz_id', 'student_id', name='_quiz_student_uc'),)
+=======
+user_quiz = db.Table('user_quiz',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('quiz_id', db.Integer, db.ForeignKey('quiz.id'), primary_key=True)
+)
+>>>>>>> 304d10c5f05240ed5b49b0750f632c4cd61c56c0

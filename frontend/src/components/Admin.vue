@@ -3,77 +3,59 @@
     <h1>Admin Dashboard</h1>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else class="admin-panel">
-      <div class="welcome-section">
-        <h2>Welcome, Administrator!</h2>
-        <p>From here you can manage the Quiz Master application.</p>
-        <button @click="logout" class="logout-btn">Logout</button>
-      </div>
-
-      <div class="admin-sections">
-        <div class="admin-card">
-          <h3>System Status</h3>
-          <p>All systems operational</p>
-        </div>
-
-        <!-- Placeholder for future admin functionality -->
-        <div class="admin-card">
-          <h3>User Management</h3>
-          <p>Feature coming soon...</p>
-        </div>
-
-        <div class="admin-card">
-          <h3>Quiz Management</h3>
-          <p>Feature coming soon...</p>
-        </div>
-      </div>
+      
+      
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "Admin",
-  data() {
-    return {
-      loading: true,
-    };
-  },
-  created() {
-    this.checkAuth();
-    this.loadAdminData();
-  },
-  methods: {
-    checkAuth() {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAxios } from '@/composables/useAxios';
 
-      // Check if user is logged in and has admin role
-      if (!token || user.role !== "Admin") {
-        this.$router.push("/login");
-      }
-    },
-    async loadAdminData() {
-      try {
-        // Get admin dashboard data
-        const response = await this.$http.get("/admin");
-        console.log("Admin data:", response.data);
-        this.loading = false;
-      } catch (error) {
-        console.error("Error loading admin data:", error);
-        if (error.response && error.response.status === 401) {
-          // Unauthorized, token might be expired or user is not admin
-          this.logout();
-        }
-        this.loading = false;
-      }
-    },
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.$router.push("/login");
-    },
-  },
-};
+const user = ref({});
+const router = useRouter();
+const { get, loading: apiLoading } = useAxios();
+const loading = ref(true);
+
+onMounted(() => {
+  checkAuth();
+  loadAdminData();
+});
+
+function checkAuth() {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  // Check if user is logged in and has admin role
+  if (!token || user.role !== "Admin") {
+    router.push("/login");
+  }
+}
+
+async function loadAdminData() {
+  try {
+    // Get admin dashboard data
+    const data = await get("/api/admin");
+    console.log("Admin data:", data);
+    user.value = data;
+    loading.value = false;
+  } catch (error) {
+    console.error("Error loading admin data:", error);
+    if (error.response && error.response.status === 401) {
+      // Unauthorized, token might be expired or user is not admin
+      logout();
+    }
+    loading.value = false;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push("/login");
+}
 </script>
 
 <style scoped>

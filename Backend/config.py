@@ -24,10 +24,10 @@ class Config:
     SECURITY_SEND_REGISTER_EMAIL = False
 =======
     # config for security
-    JWT_SECRET_KEY='295dcf416690cbf5b76d34ac146361adec39a2fcb74055f0df7a6d7fb81d8aa029374356c1b6bcf7bd22e32f6d68141c82bce960d85525373bb83d8bbdb9d5c'
+    JWT_SECRET_KEY=''
     SECURITY_PASSWORD_HASH='bcrypt'
     SECURITY_PASSWORD_SALT='thisisasecret'
->>>>>>> 304d10c5f05240ed5b49b0750f632c4cd61c56c0
+>>>>>>> 
     
     # JWT configuration
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
